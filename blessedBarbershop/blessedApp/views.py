@@ -68,7 +68,6 @@ def mostrarRoles(request):
     return render (request, 'blessedApp/ver_roles.html',data)
 
 
-
 def crearRol(request):
     formRol = RolForm()
 
@@ -106,3 +105,51 @@ def eliminarRol(request, id):
     rol.delete()
     return HttpResponseRedirect(reverse('verRoles'))
             
+
+
+
+def mostrarServicios(request):
+    servicios = Servicio.objects.all()
+    data = {
+        'servicios': servicios,
+        'titulo': 'Servicios Disponibles'
+    }
+    return render (request, 'blessedApp/ver_servicios.html',data)
+
+
+def crearServicio(request):
+    servicioForm = ServicioForm()
+
+    if request.method == 'POST':
+        servicioForm = ServicioForm(request.POST)
+        if servicioForm.is_valid():
+            print("Formulario válido")
+            servicioForm.save()
+            return HttpResponseRedirect(reverse('verServicios'))
+    data = {
+            'servicioForm': servicioForm,
+            'titulo': 'Crear Servicio'
+        }
+    return render(request, 'blessedApp/crear_servicios.html', data)
+
+def editarServicio(request, id):
+    servicio = Servicio.objects.get(id=id)
+    servicioForm = ServicioForm(instance=servicio)
+    if (request.method == 'POST'):
+        servicioForm = ServicioForm(request.POST, instance=servicio)
+        if servicioForm.is_valid():
+            print("Formulario válido")
+            servicioForm.save()
+            return HttpResponseRedirect(reverse('verServicios'))
+        else:
+            print("Formulario inválido", servicioForm.errors)
+    data = {
+        'servicioForm': servicioForm,
+        'titulo': 'Editar Servicio'
+    }
+    return render(request, 'blessedApp/crear_servicios.html', data)
+
+def eliminarServicio(request, id):
+    servicio = Servicio.objects.get(id=id)
+    servicio.delete()
+    return HttpResponseRedirect(reverse('verServicios'))
