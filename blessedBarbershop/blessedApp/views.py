@@ -153,3 +153,100 @@ def eliminarServicio(request, id):
     servicio = Servicio.objects.get(id=id)
     servicio.delete()
     return HttpResponseRedirect(reverse('verServicios'))
+
+
+
+def mostrarUsuarios(request):
+    usuarios = Usuario.objects.all()
+    data = {
+        'usuarios': usuarios,
+        'titulo': 'Usuarios Disponibles'
+    }
+    return render (request, 'blessedApp/ver_usuarios.html',data)
+
+
+def crearUsuario(request):
+    usuarioForm = UsuarioForm()
+
+    if request.method == 'POST':
+        usuarioForm = UsuarioForm(request.POST)
+        if usuarioForm.is_valid():
+            print("Formulario válido")
+            usuarioForm.save()
+            return HttpResponseRedirect(reverse('verUsuarios'))
+    data = {
+            'usuarioForm': usuarioForm,
+            'titulo': 'Crear Usuario'
+        }
+    return render(request, 'blessedApp/crear_usuarios.html', data)
+
+def editarUsuario(request, id):
+    usuario = Usuario.objects.get(id=id)
+    usuarioForm = UsuarioForm(instance=usuario) 
+    if (request.method == 'POST'):
+        usuarioForm = UsuarioForm(request.POST, instance=usuario)
+        if usuarioForm.is_valid():
+            print("Formulario válido")
+            usuarioForm.save()
+            return HttpResponseRedirect(reverse('verUsuarios'))
+        else:
+            print("Formulario inválido", usuarioForm.errors)
+    data = {
+        'usuarioForm': usuarioForm,
+        'titulo': 'Editar Usuario'
+    }
+    return render(request, 'blessedApp/crear_usuarios.html', data)
+
+
+def eliminarUsuario(request, id):
+    usuario = Usuario.objects.get(id=id)
+    usuario.delete()
+    return HttpResponseRedirect(reverse('verUsuarios'))
+
+
+
+
+def mostrarDisponibilidades(request):
+    disponibilidades = Disponibilidad.objects.all()
+    data = {
+        'disponibilidades': disponibilidades,
+        'titulo': 'Disponibilidades Disponibles'
+    }
+    return render (request, 'blessedApp/ver_disponibilidades.html',data)
+
+def crearDisponibilidad(request):
+    disponibilidadForm = DisponibilidadForm()
+
+    if request.method == 'POST':
+        disponibilidadForm = DisponibilidadForm(request.POST)
+        if disponibilidadForm.is_valid():
+            print("Formulario válido")
+            disponibilidadForm.save()
+            return HttpResponseRedirect(reverse('verDisponibilidades'))
+    data = {
+            'disponibilidadForm': disponibilidadForm,
+            'titulo': 'Crear Disponbilidad'
+        }
+    return render(request, 'blessedApp/crear_disponibilidades.html', data)
+
+def editarDisponibilidad(request, id):
+    disponibilidad = Disponibilidad.objects.get(id=id)
+    disponibilidadForm = DisponibilidadForm(instance=disponibilidad) 
+    if (request.method == 'POST'):
+        disponibilidadForm = DisponibilidadForm(request.POST, instance=disponibilidad)
+        if disponibilidadForm.is_valid():
+            print("Formulario válido")
+            disponibilidadForm.save()
+            return HttpResponseRedirect(reverse('verDisponibilidades'))
+        else:
+            print("Formulario inválido", disponibilidadForm.errors)
+    data = {
+        'disponibilidadForm': disponibilidadForm,
+        'titulo': 'Editar Disponibilidad'
+    }
+    return render(request, 'blessedApp/crear_disponibilidades.html', data)
+
+def eliminarDisponibilidad(request, id):
+    disponibilidad = Disponibilidad.objects.get(id=id)
+    disponibilidad.delete()
+    return HttpResponseRedirect(reverse('verDisponibilidades'))

@@ -10,32 +10,40 @@
   <body>
     
                 <div>
-                    <a href= "{% url 'crearRol' %}" class="btn btn-primary my-3">Agregar Roles</a>
+                    <a href= "{% url 'crearDisponibilidad' %}" class="btn btn-primary my-3">Agregar Disponibilidad</a>
                 </div>
-                {%if roles %}
+                {%if disponibilidades %}
                     <table class="table">
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Roles</th>
+                                <th>Barbero</th>
+                                <th>Fecha</th>
+                                <th>Hora Inicio</th>
+                                <th>Hora Salida</th>
+                                <th>Dispoibilidad</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for rol in roles %}
+                            {% for disponibilidad in disponibilidades %}
                                 <tr>
-                                    <td>{{rol.id}}</td>
-                                    <td>{{rol.rol}}</td>
+                                    <td>{{disponibilidad.id}}</td>
+                                    <td>{{disponibilidad.barbero}}</td>
+                                    <td>{{disponibilidad.fecha}}</td>
+                                    <td>{{disponibilidad.hora_inicio}}</td>
+                                    <td>{{disponibilidad.hora_fin}}</td>
+                                    <td>{{ disponibilidad.disponible|yesno:"Sí,No" }}</td>
             
                                     <td>
-                                        <a href="/editarRol/{{rol.id}}" class="btn btn-warning"><i class="bi bi-pen"></i></a>
-                                        <a href="/eliminarRol/{{rol.id}}" class="btn btn-danger"><i class="bi bi-trash"></i></a>
+                                        <a href="/editarDisponibilidad/{{disponibilidad.id}}" class="btn btn-warning"><i class="bi bi-pen"></i></a>
+                                        <a href="/eliminarDisponibilidad/{{disponibilidad.id}}" class="btn btn-danger"><i class="bi bi-trash"></i></a>
                                     </td>
                                 </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 {% else %}
-                    <h3>No hay Roles</h3>
+                    <h3>No hay Disponibilidades</h3>
                 {% endif %}
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>

@@ -37,5 +37,15 @@ urlpatterns = [
     path('editarServicio/<int:id>/', editarServicio, name='editarServicio'),
     path('eliminarServicio/<int:id>/', eliminarServicio, name='eliminarServicio'),
 
+    path('verUsuarios/', mostrarUsuarios, name='verUsuarios'),
+    path('crearUsuario/', crearUsuario, name='crearUsuario'),
+    path('editarUsuario/<int:id>/', editarUsuario, name='editarUsuario'),
+    path('eliminarUsuario/<int:id>/', eliminarUsuario, name='eliminarUsuario'),
+
+    path('verDisponibilidades/', mostrarDisponibilidades, name='verDisponibilidades'),
+    path('crearDisponibilidad/', crearDisponibilidad, name='crearDisponibilidad'),
+    path('editarDisponibilidad/<int:id>/', editarDisponibilidad, name='editarDisponibilidad'),
+    path('eliminarDisponibilidad/<int:id>/', eliminarDisponibilidad, name='eliminarDisponibilidad'),
+
 
 ]
