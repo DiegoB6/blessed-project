@@ -250,3 +250,159 @@ def eliminarDisponibilidad(request, id):
     disponibilidad = Disponibilidad.objects.get(id=id)
     disponibilidad.delete()
     return HttpResponseRedirect(reverse('verDisponibilidades'))
+
+
+
+def mostrarReservas(request):
+    reservas = Reserva.objects.all()
+    data = {
+        'reservas': reservas,
+        'titulo': 'Reservas Disponibles'
+    }
+    return render (request, 'blessedApp/ver_reservas.html',data)
+
+
+
+def crearReserva(request):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para crear una reserva.")
+        return redirect('login')
+
+    cliente = Usuario.objects.get(id=usuario_id)
+
+    if request.method == 'POST':
+        reservaForm = ReservaForm(request.POST)
+        if reservaForm.is_valid():
+            reserva = reservaForm.save(commit=False)
+            reserva.cliente = cliente
+
+            # 🔹 Verificar disponibilidad del barbero en la hora seleccionada
+            disponibilidad_ocupada = Disponibilidad.objects.filter(
+                barbero=reserva.barbero,
+                fecha=reserva.fecha,
+                hora_inicio__lte=reserva.hora_inicio,
+                hora_fin__gte=reserva.hora_inicio,
+                disponible=False
+            ).exists()
+
+            if disponibilidad_ocupada:
+                messages.error(request, "⚠️ El barbero no está disponible en el horario seleccionado.")
+                # Se vuelve a mostrar el formulario sin romper el flujo
+                data = {
+                    'reservaForm': reservaForm,
+                    'titulo': 'Crear Reserva'
+                }
+                return render(request, 'blessedApp/crear_reservas.html', data)
+
+            # 🔹 Asignar estado "Pendiente" automáticamente
+            estado_pendiente, _ = Estado.objects.get_or_create(estado="Pendiente")
+            reserva.estado = estado_pendiente
+
+            reserva.save()
+            messages.success(request, "✅ Reserva creada exitosamente.")
+            return HttpResponseRedirect(reverse('verReservas'))
+        else:
+            print(reservaForm.errors)
+    else:
+        reservaForm = ReservaForm()
+
+    data = {
+        'reservaForm': reservaForm,
+        'titulo': 'Crear Reserva'
+    }
+    return render(request, 'blessedApp/crear_reservas.html', data)
+
+
+def editarReserva(request, id):
+    reserva = Reserva.objects.get(id=id)
+    reservaForm = ReservaForm(instance=reserva, editar=True)
+
+    if request.method == 'POST':
+        reservaForm = ReservaForm(request.POST, instance=reserva, editar=True)
+        if reservaForm.is_valid():
+            print("Formulario válido")
+            reserva_actualizada = reservaForm.save(commit=False)
+
+            # 🔹 Verificar si el estado cambió a "Finalizado"
+            estado_finalizado = Estado.objects.filter(estado__iexact="Finalizado").first()
+            if estado_finalizado and reserva_actualizada.estado == estado_finalizado:
+                # 🔓 Liberar disponibilidad del barbero en ese rango horario
+                Disponibilidad.objects.filter(
+                    barbero=reserva_actualizada.barbero,
+                    fecha=reserva_actualizada.fecha,
+                    hora_inicio__lte=reserva_actualizada.hora_fin,
+                    hora_fin__gte=reserva_actualizada.hora_inicio
+                ).update(disponible=True)
+                print("✅ Disponibilidad liberada para el barbero.")
+
+            reserva_actualizada.save()
+            return HttpResponseRedirect(reverse('verReservas'))
+        else:
+            print("Formulario inválido", reservaForm.errors)
+
+    data = {
+        'reservaForm': reservaForm,
+        'titulo': 'Editar Reserva'
+    }
+    return render(request, 'blessedApp/crear_reservas.html', data)
+
+
+def eliminarReserva(request, id):
+    reserva = Reserva.objects.get(id=id)
+    reserva.delete()
+    return HttpResponseRedirect(reverse('verReservas'))
+
+
+
+def mostrarEstados(request):
+    estados = Estado.objects.all()
+    data = {
+        'estados': estados,
+        'titulo': 'Estados Disponibles'
+    }
+    return render (request, 'blessedApp/ver_estados.html',data)
+
+
+def crearEstado(request):
+    estadoForm = EstadoForm()
+
+    if request.method == 'POST':
+        estadoForm = EstadoForm(request.POST)
+        if estadoForm.is_valid():
+            print("Formulario válido")
+            estadoForm.save()
+            return HttpResponseRedirect(reverse('verEstados'))
+    data = {
+            'estadoForm': estadoForm,
+            'titulo': 'Crear Estado'
+        }
+    return render(request, 'blessedApp/crear_estados.html', data)
+    
+def editarEstado(request, id):
+    estado = Estado.objects.get(id=id)
+    estadoForm = EstadoForm(instance=estado)
+    if (request.method == 'POST'):
+        estadoForm = EstadoForm(request.POST, instance=estado)
+        if estadoForm.is_valid():
+            print("Formulario válido")
+            estadoForm.save()
+            return HttpResponseRedirect(reverse('verEstados'))
+        else:
+            print("Formulario inválido", estadoForm.errors)
+    data = {
+        'estadoForm': estadoForm,
+        'titulo': 'Editar Estado'
+    }
+    return render(request, 'blessedApp/crear_estados.html', data)
+
+def eliminarEstado(request, id):
+    estado = Estado.objects.get(id=id)
+    estado.delete()
+    return HttpResponseRedirect(reverse('verEstados'))
+
+
+def cerrar_sesion(request):
+    request.session.flush()
+    messages.success(request, "Has cerrado sesión exitosamente.")
+    return redirect('login')

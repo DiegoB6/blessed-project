@@ -47,5 +47,17 @@ urlpatterns = [
     path('editarDisponibilidad/<int:id>/', editarDisponibilidad, name='editarDisponibilidad'),
     path('eliminarDisponibilidad/<int:id>/', eliminarDisponibilidad, name='eliminarDisponibilidad'),
 
+    path('verReservas/', mostrarReservas, name='verReservas'),
+    path('crearReserva/', crearReserva, name='crearReserva'),
+    path('editarReserva/<int:id>/', editarReserva, name='editarReserva'),
+    path('eliminarReserva/<int:id>/', eliminarReserva, name='eliminarReserva'),
+
+    path('verEstados/', mostrarEstados, name='verEstados'),
+    path('crearEstado/', crearEstado, name='crearEstado'),
+    path('editarEstado/<int:id>/', editarEstado, name='editarEstado'),
+    path('eliminarEstado/<int:id>/', eliminarEstado, name='eliminarEstado'),
+
+    path('cerrar_sesion/', cerrar_sesion, name='cerrar_sesion'),
+
 
 ]
