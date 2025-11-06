@@ -42,6 +42,10 @@ urlpatterns = [
     path('editarUsuario/<int:id>/', editarUsuario, name='editarUsuario'),
     path('eliminarUsuario/<int:id>/', eliminarUsuario, name='eliminarUsuario'),
 
+    path('editaPerfil/', editarDatos, name='editarPerfil'),
+
+    path('crearCliente/', crearCliente, name='crearCliente'),
+
     path('verDisponibilidades/', mostrarDisponibilidades, name='verDisponibilidades'),
     path('crearDisponibilidad/', crearDisponibilidad, name='crearDisponibilidad'),
     path('editarDisponibilidad/<int:id>/', editarDisponibilidad, name='editarDisponibilidad'),
@@ -52,6 +56,9 @@ urlpatterns = [
     path('editarReserva/<int:id>/', editarReserva, name='editarReserva'),
     path('eliminarReserva/<int:id>/', eliminarReserva, name='eliminarReserva'),
 
+    path('verReservasCliente/', mostrarReservasCliente, name='verReservasCliente'),
+    path('verReservasBarbero/', mostrarReservasBarbero, name='verReservasBarbero'),
+
     path('verEstados/', mostrarEstados, name='verEstados'),
     path('crearEstado/', crearEstado, name='crearEstado'),
     path('editarEstado/<int:id>/', editarEstado, name='editarEstado'),
@@ -59,5 +66,8 @@ urlpatterns = [
 
     path('cerrar_sesion/', cerrar_sesion, name='cerrar_sesion'),
 
+    path('editarReservaBarbero/<int:id>/', editarReservaBarbero, name='editarReservaBarbero'),
+
+    path('cambiarPassword', cambiarPassword, name='cambiarPassword'),
 
 ]

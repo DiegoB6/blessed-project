@@ -56,6 +56,12 @@ class UsuarioForm(forms.ModelForm):
         if not password.startswith('pbkdf2_sha256$'):
             return make_password(password)
         return password
+    
+
+class EditarDatosUsuarioForm(forms.ModelForm):
+    class Meta:
+        model = Usuario
+        fields = ['usuario', 'correo', 'telefono']
 
 
 class DisponibilidadForm(forms.ModelForm):
@@ -92,6 +98,7 @@ class ReservaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         editar = kwargs.pop('editar', False)
+        solo_estado = kwargs.pop('solo_estado', False)
         super().__init__(*args, **kwargs)
 
         # Mostrar solo barberos
@@ -101,6 +108,11 @@ class ReservaForm(forms.ModelForm):
         if not editar:
             self.fields.pop('cliente')
             self.fields.pop('estado')
+
+        if solo_estado:
+            for field in list(self.fields.keys()):
+                if field != 'estado':
+                    self.fields.pop(field)
 
     def save(self, commit=True):
         reserva = super().save(commit=False)
@@ -117,3 +129,39 @@ class ReservaForm(forms.ModelForm):
         if commit:
             reserva.save()
         return reserva
+
+
+
+class CambiarPasswordForm(forms.Form):
+    contrasena_actual = forms.CharField(
+        label="Contraseña actual",
+        widget=forms.PasswordInput(attrs={'class': 'form-control'})
+    )
+    nueva_contrasena = forms.CharField(
+        label="Nueva contraseña",
+        widget=forms.PasswordInput(attrs={'class': 'form-control'})
+    )
+    confirmar_contrasena = forms.CharField(
+        label="Confirmar nueva contraseña",
+        widget=forms.PasswordInput(attrs={'class': 'form-control'})
+    )
+
+    def __init__(self, usuario, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.usuario = usuario
+
+    def clean(self):
+        cleaned_data = super().clean()
+        contrasena_actual = cleaned_data.get('contrasena_actual')
+        nueva_contrasena = cleaned_data.get('nueva_contrasena')
+        confirmar_contrasena = cleaned_data.get('confirmar_contrasena')
+
+        #  Verificar contraseña actual
+        if not check_password(contrasena_actual, self.usuario.password):
+            raise forms.ValidationError("La contraseña actual es incorrecta.")
+
+        #  Verificar coincidencia
+        if nueva_contrasena != confirmar_contrasena:
+            raise forms.ValidationError("Las contraseñas nuevas no coinciden.")
+
+        return cleaned_data

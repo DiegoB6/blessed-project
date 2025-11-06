@@ -63,7 +63,10 @@ class Reserva(models.Model):
     servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE)
 
     def clean(self):
-        """Valida que el barbero esté disponible en ese horario."""
+        """Valida que el barbero esté disponible en ese horario solo al crear la reserva."""
+        if self.pk:  # Si ya existe (modo edición), no validar disponibilidad
+            return
+
         if not self.barbero_id or not self.fecha or not self.hora_inicio or not self.hora_fin:
             return  # Evita validar si faltan datos
 
@@ -128,12 +131,11 @@ class Reserva(models.Model):
                     )
 
         #  Si la reserva pasa a "Finalizado" → liberar la franja horaria
-        if self.estado.estado.lower() == "finalizado":
+        if self.estado and self.estado.estado.lower() in ["finalizado", "cancelado"]:
             self.liberar_disponibilidad()
 
     def liberar_disponibilidad(self):
         """Libera el horario reservado creando un nuevo bloque de disponibilidad."""
-        # Evita duplicados: solo crea si no hay disponibilidad igual
         existe = Disponibilidad.objects.filter(
             barbero=self.barbero,
             fecha=self.fecha,

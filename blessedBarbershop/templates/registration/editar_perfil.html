@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Editar Perfil</title>
+    <link 
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" 
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" 
+      crossorigin="anonymous">
+  </head>
+  <body class="bg-light">
+
+    <div class="container py-5">
+      <h1 class="text-center mb-4">Editar Perfil</h1>
+
+      <form method="post" class="col-md-6 offset-md-3 border border-3 border-primary rounded p-4 bg-white shadow">
+        {% csrf_token %}
+        {{ editarDatosForm.as_p }}
+
+        <!-- Campo oculto para volver a la página anterior -->
+        <input type="hidden" name="next" value="{{ next }}">
+
+        <div class="d-grid mt-4">
+          <button type="submit" class="btn btn-outline-primary">{{ titulo }}</button>
+        </div>
+      </form>
+
+      <!-- Botón para cancelar y volver -->
+      <div class="text-center mt-3">
+        <a href="{{ next|default:'/panel_cliente/' }}" class="btn btn-outline-secondary">Cancelar</a>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" 
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" 
+      crossorigin="anonymous">
+    </script>
+  </body>
+</html>

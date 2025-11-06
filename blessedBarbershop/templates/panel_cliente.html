@@ -16,6 +16,12 @@
 </html>
     
 <a href="{% url 'crearReserva' %}" class="btn btn-outline-danger btn-sm">Agendar Reserva</a>
+<a href="{% url 'editarPerfil' %}?next={{ request.path }}" class="btn btn-outline-danger btn-sm">
+        Editar mis Datos
+    </a>
+<a href="{% url 'cambiarPassword' %}" class="btn btn-outline-danger btn-sm">Cambiar mi Contraseña</a>   
+
+<a href="{% url 'cerrar_sesion' %}" class="btn btn-outline-danger btn-sm">Cerrar Sesion</a>
                 
 
 </body>

@@ -406,3 +406,134 @@ def cerrar_sesion(request):
     request.session.flush()
     messages.success(request, "Has cerrado sesión exitosamente.")
     return redirect('login')
+
+
+def editarReservaBarbero(request, id):
+    reserva = Reserva.objects.get(id=id)
+    reservaForm = ReservaForm(instance=reserva, editar=True, solo_estado=True)
+
+    if request.method == 'POST':
+        reservaForm = ReservaForm(request.POST, instance=reserva, editar=True, solo_estado=True)
+        if reservaForm.is_valid():
+            reservaForm.save()
+            messages.success(request, "Estado de la reserva actualizado correctamente.")
+            return HttpResponseRedirect(reverse('verReservasBarbero'))
+        else:
+            print("Formulario inválido", reservaForm.errors)
+
+    data = {
+        'reservaForm': reservaForm,
+        'titulo': 'Actualizar Reserva'
+    }
+    return render(request, 'blessedApp/crear_reservas.html', data)
+
+
+def mostrarReservasCliente(request):
+    usuario_id = request.session.get('usuario_id')
+    reservas = Reserva.objects.filter(cliente_id=usuario_id)
+
+    data = {
+        'reservas': reservas,
+        'titulo': 'Mis Reservas'
+    }
+    return render(request, 'blessedApp/ver_reservas_clientes.html', data)
+
+
+def mostrarReservasBarbero(request):
+    usuario_id = request.session.get('usuario_id')
+    reservas = Reserva.objects.filter(barbero_id=usuario_id)
+
+    data = {
+        'reservas': reservas,
+        'titulo': 'Mis Reservas'
+    }
+    return render(request, 'blessedApp/ver_reservas_barberos.html', data)
+
+
+def crearCliente(request):
+    if request.method == 'POST':
+        form = UsuarioForm(request.POST)
+
+        #  Eliminar el campo 'rol' ANTES de validar
+        if 'rol' in form.fields:
+            form.fields.pop('rol')
+
+        if form.is_valid():
+            usuario = form.save(commit=False)
+
+            # Asignar automáticamente el rol "Cliente"
+            rol_cliente, _ = Rol.objects.get_or_create(rol__iexact="Cliente", defaults={'rol': 'Cliente'})
+            usuario.rol = rol_cliente
+
+            usuario.save()
+            messages.success(request, "Usuario registrado correctamente.")
+            return redirect(reverse('login'))  # o la ruta que prefieras
+        else:
+            print("Errores del formulario:", form.errors)
+            messages.error(request, "Corrige los errores del formulario.")
+    else:
+        form = UsuarioForm()
+        if 'rol' in form.fields:
+            form.fields.pop('rol')
+
+    data = {
+        'usuarioForm': form,
+        'titulo': 'Registro de Cliente'
+    }
+    return render(request, 'registration/crear_cliente.html', data)
+
+
+def editarDatos(request):
+    usuario_id = request.session.get('usuario_id')
+
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para editar su perfil.")
+        return redirect('login')
+
+    usuario = Usuario.objects.get(id=usuario_id)
+    next_url = request.GET.get('next') or request.POST.get('next')
+
+    if request.method == 'POST':
+        form = EditarDatosUsuarioForm(request.POST, instance=usuario)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Perfil actualizado correctamente.")
+            return redirect(next_url or reverse('login')) 
+        else:
+            print("Formulario inválido:", form.errors)
+            messages.error(request, "Corrige los errores del formulario.")
+    else:
+        form = EditarDatosUsuarioForm(instance=usuario)
+
+    data = {
+        'editarDatosForm': form,
+        'titulo': 'Editar Perfil',
+        'next': next_url,
+    }
+    return render(request, 'registration/editar_perfil.html', data)
+
+
+def cambiarPassword(request):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para cambiar su contraseña.")
+        return redirect('login')
+
+    usuario = Usuario.objects.get(id=usuario_id)
+
+    if request.method == 'POST':
+        cambiarPasswordForm = CambiarPasswordForm(usuario, request.POST)
+        if cambiarPasswordForm.is_valid():
+            nueva_contrasena = cambiarPasswordForm.cleaned_data['nueva_contrasena']
+            usuario.password = make_password(nueva_contrasena)
+            usuario.save()
+            messages.success(request, "Tu contraseña ha sido actualizada correctamente.")
+            return redirect('login') 
+    else:
+        cambiarPasswordForm = CambiarPasswordForm(usuario)
+
+    data = {
+        'cambiarPasswordForm': cambiarPasswordForm,
+        'titulo': 'Cambiar Contraseña'
+    }
+    return render(request, 'registration/cambiar_password.html', data)
