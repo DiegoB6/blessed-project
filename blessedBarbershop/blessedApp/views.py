@@ -45,7 +45,7 @@ def login(request):
     return render(request, 'registration/login.html')
 
 
-@rol_requerido(['Administrador'])
+## @rol_requerido(['Administrador'])
 def panel_admin(request):
     return render(request, 'panel_admin.html')
 
@@ -207,44 +207,94 @@ def eliminarUsuario(request, id):
 
 
 def mostrarDisponibilidades(request):
-    disponibilidades = Disponibilidad.objects.all()
-    data = {
+    usuario_id = request.session.get('usuario_id')
+
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para ver sus disponibilidades.")
+        return redirect('login')
+
+    usuario = Usuario.objects.get(id=usuario_id)
+
+    #  Si el usuario es barbero → mostrar solo sus disponibilidades
+    if usuario.rol.rol.lower() == 'barbero':
+        disponibilidades = Disponibilidad.objects.filter(barbero=usuario)
+    else:
+        #  Si es admin → mostrar todas
+        disponibilidades = Disponibilidad.objects.all()
+
+    context = {
         'disponibilidades': disponibilidades,
-        'titulo': 'Disponibilidades Disponibles'
+        'titulo': 'Mis Disponibilidades' if usuario.rol.rol.lower() == 'barbero' else 'Disponibilidades'
     }
-    return render (request, 'blessedApp/ver_disponibilidades.html',data)
+
+    return render(request, 'blessedApp/ver_disponibilidades.html', context)
+
 
 def crearDisponibilidad(request):
-    disponibilidadForm = DisponibilidadForm()
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para crear una disponibilidad.")
+        return redirect('login')
+
+    usuario = Usuario.objects.get(id=usuario_id)
 
     if request.method == 'POST':
-        disponibilidadForm = DisponibilidadForm(request.POST)
+        disponibilidadForm = DisponibilidadForm(request.POST, usuario=usuario)
         if disponibilidadForm.is_valid():
-            print("Formulario válido")
-            disponibilidadForm.save()
-            return HttpResponseRedirect(reverse('verDisponibilidades'))
-    data = {
-            'disponibilidadForm': disponibilidadForm,
-            'titulo': 'Crear Disponbilidad'
-        }
-    return render(request, 'blessedApp/crear_disponibilidades.html', data)
+            disponibilidad = disponibilidadForm.save(commit=False)
 
-def editarDisponibilidad(request, id):
-    disponibilidad = Disponibilidad.objects.get(id=id)
-    disponibilidadForm = DisponibilidadForm(instance=disponibilidad) 
-    if (request.method == 'POST'):
-        disponibilidadForm = DisponibilidadForm(request.POST, instance=disponibilidad)
-        if disponibilidadForm.is_valid():
-            print("Formulario válido")
-            disponibilidadForm.save()
+            #  Si el usuario logueado es barbero, asignarlo automáticamente
+            if usuario.rol.rol.lower() == 'barbero':
+                disponibilidad.barbero = usuario
+
+            disponibilidad.save()
+            messages.success(request, "✅ Disponibilidad creada correctamente.")
             return HttpResponseRedirect(reverse('verDisponibilidades'))
         else:
             print("Formulario inválido", disponibilidadForm.errors)
+    else:
+        disponibilidadForm = DisponibilidadForm(usuario=usuario)
+
+    data = {
+        'disponibilidadForm': disponibilidadForm,
+        'titulo': 'Crear Disponibilidad'
+    }
+    return render(request, 'blessedApp/crear_disponibilidades.html', data)
+
+def editarDisponibilidad(request, id):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para editar una disponibilidad.")
+        return redirect('login')
+
+    usuario = Usuario.objects.get(id=usuario_id)
+    disponibilidad = Disponibilidad.objects.get(id=id)
+
+    # Pasamos el usuario al formulario
+    if request.method == 'POST':
+        disponibilidadForm = DisponibilidadForm(request.POST, instance=disponibilidad, usuario=usuario)
+        if disponibilidadForm.is_valid():
+            print("Formulario válido")
+            disponibilidad_editada = disponibilidadForm.save(commit=False)
+
+            # Si el usuario es barbero, forzamos que la disponibilidad quede asociada a él
+            if usuario.rol.rol.lower() == 'barbero':
+                disponibilidad_editada.barbero = usuario
+
+            disponibilidad_editada.save()
+            messages.success(request, "✅ Disponibilidad actualizada correctamente.")
+            return HttpResponseRedirect(reverse('verDisponibilidades'))
+        else:
+            print("Formulario inválido", disponibilidadForm.errors)
+    else:
+        disponibilidadForm = DisponibilidadForm(instance=disponibilidad, usuario=usuario)
+
     data = {
         'disponibilidadForm': disponibilidadForm,
         'titulo': 'Editar Disponibilidad'
     }
     return render(request, 'blessedApp/crear_disponibilidades.html', data)
+
 
 def eliminarDisponibilidad(request, id):
     disponibilidad = Disponibilidad.objects.get(id=id)
@@ -271,13 +321,24 @@ def crearReserva(request):
 
     cliente = Usuario.objects.get(id=usuario_id)
 
+    # ⚙️ Determinar si el usuario es Administrador
+    es_admin = cliente.rol.rol.lower() == "administrador"
+
     if request.method == 'POST':
-        reservaForm = ReservaForm(request.POST)
+        # Si es admin, puede ver todos los campos; si no, se ocultan cliente y estado
+        reservaForm = ReservaForm(request.POST, admin=es_admin)
         if reservaForm.is_valid():
             reserva = reservaForm.save(commit=False)
-            reserva.cliente = cliente
 
-            # 🔹 Verificar disponibilidad del barbero en la hora seleccionada
+            # Si no es admin, asigna el cliente logueado automáticamente
+            if not es_admin:
+                reserva.cliente = cliente
+
+                # Asigna estado "Pendiente" automáticamente
+                estado_pendiente, _ = Estado.objects.get_or_create(estado="Pendiente")
+                reserva.estado = estado_pendiente
+
+            # 🔹 Verificar disponibilidad del barbero
             disponibilidad_ocupada = Disponibilidad.objects.filter(
                 barbero=reserva.barbero,
                 fecha=reserva.fecha,
@@ -288,16 +349,11 @@ def crearReserva(request):
 
             if disponibilidad_ocupada:
                 messages.error(request, "⚠️ El barbero no está disponible en el horario seleccionado.")
-                # Se vuelve a mostrar el formulario sin romper el flujo
                 data = {
                     'reservaForm': reservaForm,
                     'titulo': 'Crear Reserva'
                 }
                 return render(request, 'blessedApp/crear_reservas.html', data)
-
-            # 🔹 Asignar estado "Pendiente" automáticamente
-            estado_pendiente, _ = Estado.objects.get_or_create(estado="Pendiente")
-            reserva.estado = estado_pendiente
 
             reserva.save()
             messages.success(request, "✅ Reserva creada exitosamente.")
@@ -305,7 +361,7 @@ def crearReserva(request):
         else:
             print(reservaForm.errors)
     else:
-        reservaForm = ReservaForm()
+        reservaForm = ReservaForm(admin=es_admin)
 
     data = {
         'reservaForm': reservaForm,
@@ -324,10 +380,10 @@ def editarReserva(request, id):
             print("Formulario válido")
             reserva_actualizada = reservaForm.save(commit=False)
 
-            # 🔹 Verificar si el estado cambió a "Finalizado"
+            #  Verificar si el estado cambió a "Finalizado"
             estado_finalizado = Estado.objects.filter(estado__iexact="Finalizado").first()
             if estado_finalizado and reserva_actualizada.estado == estado_finalizado:
-                # 🔓 Liberar disponibilidad del barbero en ese rango horario
+                #  Liberar disponibilidad del barbero en ese rango horario
                 Disponibilidad.objects.filter(
                     barbero=reserva_actualizada.barbero,
                     fecha=reserva_actualizada.fecha,
@@ -537,3 +593,28 @@ def cambiarPassword(request):
         'titulo': 'Cambiar Contraseña'
     }
     return render(request, 'registration/cambiar_password.html', data)
+
+
+def crearReservaAdmin(request):
+    reservaForm = ReservaForm()
+
+    if request.method == 'POST':
+        reservaForm = ReservaForm(request.POST)
+        if reservaForm.is_valid():
+            print("Formulario válido")
+            reservaForm.save()
+            return HttpResponseRedirect(reverse('verReservas'))
+    data = {
+            'reservaForm': reservaForm,
+            'titulo': 'Crear Reserva'
+        }
+    return render(request, 'blessedApp/crear_reservas.html', data)
+
+
+def mostrarDisponibilidadesBarbero(request):
+    disponibilidades = Disponibilidad.objects.all()
+    data = {
+        'disponibilidades': disponibilidades,
+        'titulo': 'Disponibilidades Disponibles'
+    }
+    return render (request, 'blessedApp/ver_disponibilidades.html',data)
