@@ -57,7 +57,11 @@
                                     </td>
 
                                     <td>
-                                        <a href="/eliminarReservaCliente/{{reserva.id}}" class="btn btn-danger"><i class="bi bi-trash"></i></a>
+                                        <a href="/eliminarReservaCliente/{{reserva.id}}" 
+                                        class="btn btn-danger"
+                                        onclick="return confirm('¿Estás seguro de que deseas eliminar esta reserva?');">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
                                     </td>
             
                                 </tr>

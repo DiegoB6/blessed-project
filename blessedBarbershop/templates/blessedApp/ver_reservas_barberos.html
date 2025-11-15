@@ -38,6 +38,15 @@
                                     <td>
                                         <a href="/editarReservaBarbero/{{reserva.id}}" class="btn btn-warning"><i class="bi bi-pen"></i></a>
                                     </td>
+
+                                    <td>
+                                        <a href="/eliminarReservaBarbero/{{reserva.id}}" 
+                                        class="btn btn-danger"
+                                        onclick="return confirm('¿Estás seguro de que deseas cancelar esta reserva?');">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+
                                 </tr>
                             {% endfor %}
                         </tbody>

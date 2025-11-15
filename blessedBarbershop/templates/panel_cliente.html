@@ -37,7 +37,7 @@
         <div class="col-md-3 col-lg-2 sidebar d-none d-md-block">
             <h4 class="text-center mb-4 text-primary">Panel Cliente</h4>
             <hr class="text-dark-50">
-            <p class="text-center">Bienvenido, **{{ request.session.usuario|default:'Cliente' }}**</p>
+            <p class="text-center">Bienvenido, **{{ request.session.usuario_nombre|default:'Cliente' }}**</p>
             <hr class="text-dark-50">
             
             <ul class="nav flex-column">

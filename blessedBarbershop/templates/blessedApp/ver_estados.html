@@ -28,7 +28,11 @@
             
                                     <td>
                                         <a href="/editarEstado/{{estado.id}}" class="btn btn-warning"><i class="bi bi-pen"></i></a>
-                                        <a href="/eliminarEstado/{{estado.id}}" class="btn btn-danger"><i class="bi bi-trash"></i></a>
+                                        <a href="/eliminarEstado/{{estado.id}}" 
+                                        class="btn btn-danger"
+                                        onclick="return confirm('¿Estás seguro de que deseas eliminar este Estado?');">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
                                     </td>
                                 </tr>
                             {% endfor %}

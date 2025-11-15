@@ -36,7 +36,7 @@
         <div class="col-md-3 col-lg-2 sidebar d-none d-md-block">
             <h4 class="text-center mb-4">Panel Barbero</h4>
             <hr class="text-white-50">
-            <p class="text-center">Bienvenido, **{{ request.session.usuario|default:'Barbero' }}**</p>
+            <p class="text-center">Bienvenido, **{{ request.session.usuario_nombre|default:'Barbero' }}**</p>
             <hr class="text-white-50">
             
             <ul class="nav flex-column">
@@ -52,7 +52,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'editarPerfil' %}">
+                    <a class="nav-link" href="{% url 'editarPerfil' %}?next={{ request.path }}">
                         <i class="bi bi-pencil-square me-2"></i> Editar Perfil
                     </a>
                 </li>
@@ -109,7 +109,7 @@
                         <div class="card-body">
                             <h5 class="card-title"><i class="bi bi-pencil-square me-2"></i> Editar Perfil</h5>
                             <p class="card-text">Edita los datos de tu perfil</p>
-                            <a href="{% url 'editarPerfil' %}" class="btn btn-light btn-sm">Editar</a>
+                            <a href="{% url 'editarPerfil' %}?next={{ request.path }}" class="btn btn-light btn-sm">Editar</a>
                         </div>
                     </div>
                 </div>

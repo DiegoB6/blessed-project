@@ -60,6 +60,7 @@ urlpatterns = [
     path('eliminarReserva/<int:id>/', eliminarReserva, name='eliminarReserva'),
 
     path('eliminarReservaCliente/<int:id>/', eliminarReservaCliente, name='eliminarReservaCliente'),
+    path('eliminarReservaBarbero/<int:id>/', eliminarReservaBarbero, name='eliminarReservaBarbero'),
 
     path('crearReservaAdmin/', crearReservaAdmin, name='crearReservaAdmin'),
     path('verReservasCliente/', mostrarReservasCliente, name='verReservasCliente'),

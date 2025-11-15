@@ -34,7 +34,11 @@
             
                                     <td>
                                         <a href="/editarUsuario/{{usuario.id}}" class="btn btn-warning"><i class="bi bi-pen"></i></a>
-                                        <a href="/eliminarUsuario/{{usuario.id}}" class="btn btn-danger"><i class="bi bi-trash"></i></a>
+                                        <a href="/eliminarUsuario/{{usuario.id}}" 
+                                        class="btn btn-danger"
+                                        onclick="return confirm('¿Estás seguro de que deseas eliminar este Usuario?');">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
                                     </td>
                                 </tr>
                             {% endfor %}

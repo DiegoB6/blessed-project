@@ -36,7 +36,11 @@
             
                                     <td>
                                         <a href="/editarDisponibilidad/{{disponibilidad.id}}" class="btn btn-warning"><i class="bi bi-pen"></i></a>
-                                        <a href="/eliminarDisponibilidad/{{disponibilidad.id}}" class="btn btn-danger"><i class="bi bi-trash"></i></a>
+                                        <a href="/eliminarDisponibilidad/{{disponibilidad.id}}" 
+                                        class="btn btn-danger"
+                                        onclick="return confirm('¿Estás seguro de que deseas eliminar esta Disponibilidad?');">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
                                     </td>
                                 </tr>
                             {% endfor %}

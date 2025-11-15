@@ -40,7 +40,11 @@
             
                                     <td>
                                         <a href="/editarReserva/{{reserva.id}}" class="btn btn-warning"><i class="bi bi-pen"></i></a>
-                                        <a href="/eliminarReserva/{{reserva.id}}" class="btn btn-danger"><i class="bi bi-trash"></i></a>
+                                        <a href="/eliminarReserva/{{reserva.id}}" 
+                                        class="btn btn-danger"
+                                        onclick="return confirm('¿Estás seguro de que deseas eliminar esta reserva?');">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
                                     </td>
                                 </tr>
                             {% endfor %}

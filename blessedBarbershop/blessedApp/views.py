@@ -410,13 +410,23 @@ def editarReserva(request, id):
 
 def eliminarReserva(request, id):
     reserva = Reserva.objects.get(id=id)
+    reserva.liberar_disponibilidad()
     reserva.delete()
     return HttpResponseRedirect(reverse('verReservas'))
 
 def eliminarReservaCliente(request, id):
     reserva = Reserva.objects.get(id=id)
+    reserva.liberar_disponibilidad()
     reserva.delete()
     return HttpResponseRedirect(reverse('verReservasCliente'))
+
+
+def eliminarReservaBarbero(request, id):
+    reserva = Reserva.objects.get(id=id)
+    reserva.liberar_disponibilidad()
+    reserva.delete()
+    return HttpResponseRedirect(reverse('verReservasBarbero'))
+
 
 
 
@@ -556,7 +566,17 @@ def editarDatos(request):
         return redirect('login')
 
     usuario = Usuario.objects.get(id=usuario_id)
-    next_url = request.GET.get('next') or request.POST.get('next')
+
+    if usuario.rol == "Cliente":
+        default_next = reverse("panel_cliente")
+    elif usuario.rol == "Barbero":
+        default_next = reverse("panel_barbero")
+    elif usuario.rol == "Admin":
+        default_next = reverse("panel_admin")
+    else:
+        default_next = reverse("login")
+
+    next_url = request.GET.get('next') or request.POST.get('next') or default_next
 
     if request.method == 'POST':
         form = EditarDatosUsuarioForm(request.POST, instance=usuario)
