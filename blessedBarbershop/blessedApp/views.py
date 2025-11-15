@@ -13,6 +13,10 @@ from blessedApp.models import *
 from blessedApp.forms import *
 from .forms import RolForm
 
+# pip install reportlab
+# from reportlab.pdfgen import canvas
+# from django.http import HttpResponse, FileResponse
+
 def login(request):
     if request.method == 'POST':
         nombre_usuario = request.POST.get('usuario')
@@ -321,7 +325,7 @@ def crearReserva(request):
 
     cliente = Usuario.objects.get(id=usuario_id)
 
-    # ⚙️ Determinar si el usuario es Administrador
+    #  Determinar si el usuario es Administrador
     es_admin = cliente.rol.rol.lower() == "administrador"
 
     if request.method == 'POST':
@@ -338,7 +342,7 @@ def crearReserva(request):
                 estado_pendiente, _ = Estado.objects.get_or_create(estado="Pendiente")
                 reserva.estado = estado_pendiente
 
-            # 🔹 Verificar disponibilidad del barbero
+            #  Verificar disponibilidad del barbero
             disponibilidad_ocupada = Disponibilidad.objects.filter(
                 barbero=reserva.barbero,
                 fecha=reserva.fecha,
@@ -357,7 +361,7 @@ def crearReserva(request):
 
             reserva.save()
             messages.success(request, "✅ Reserva creada exitosamente.")
-            return HttpResponseRedirect(reverse('verReservas'))
+            return HttpResponseRedirect(reverse('verReservasCliente'))
         else:
             print(reservaForm.errors)
     else:
@@ -408,6 +412,11 @@ def eliminarReserva(request, id):
     reserva = Reserva.objects.get(id=id)
     reserva.delete()
     return HttpResponseRedirect(reverse('verReservas'))
+
+def eliminarReservaCliente(request, id):
+    reserva = Reserva.objects.get(id=id)
+    reserva.delete()
+    return HttpResponseRedirect(reverse('verReservasCliente'))
 
 
 
@@ -618,3 +627,23 @@ def mostrarDisponibilidadesBarbero(request):
         'titulo': 'Disponibilidades Disponibles'
     }
     return render (request, 'blessedApp/ver_disponibilidades.html',data)
+
+
+# def generar_pdf_reserva(request, id):
+#     reserva = get_object_or_404(Reserva, id=id)
+
+#     response = HttpResponse(content_type='application/pdf')
+#     response['Content-Disposition'] = f'attachment; filename="reserva_{id}.pdf"'
+
+#     p = canvas.Canvas(response)
+#     p.setFont("Arial", 12)
+
+#     p.drawString(100, 800, f"Reserva ID: {reserva.id}")
+#     p.drawString(100, 760, f"Barbero: {reserva.barbero.usuario}")
+#     p.drawString(100, 740, f"Servicio: {reserva.servicio.servicio}")
+#     p.drawString(100, 720, f"Fecha: {reserva.fecha}")
+#     p.drawString(100, 700, f"Hora inicio: {reserva.hora_inicio}")
+
+#     p.showPage()
+#     p.save()
+#     return response

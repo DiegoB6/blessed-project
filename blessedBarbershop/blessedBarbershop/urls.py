@@ -19,6 +19,9 @@ from django.urls import path
 from django.views.generic.base import TemplateView
 from blessedApp.views import *
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',TemplateView.as_view(template_name='index.html'), name='home'), 
@@ -56,6 +59,8 @@ urlpatterns = [
     path('editarReserva/<int:id>/', editarReserva, name='editarReserva'),
     path('eliminarReserva/<int:id>/', eliminarReserva, name='eliminarReserva'),
 
+    path('eliminarReservaCliente/<int:id>/', eliminarReservaCliente, name='eliminarReservaCliente'),
+
     path('crearReservaAdmin/', crearReservaAdmin, name='crearReservaAdmin'),
     path('verReservasCliente/', mostrarReservasCliente, name='verReservasCliente'),
     path('verReservasBarbero/', mostrarReservasBarbero, name='verReservasBarbero'),
@@ -71,4 +76,8 @@ urlpatterns = [
 
     path('cambiarPassword', cambiarPassword, name='cambiarPassword'),
 
+
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -62,6 +62,8 @@ class Reserva(models.Model):
     barbero = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='barbero')
     servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE)
 
+    qr_codigo = models.ImageField(upload_to='qr/', null=True, blank=True)
+
     def clean(self):
         """Valida que el barbero esté disponible en ese horario solo al crear la reserva."""
         if self.pk:  # Si ya existe (modo edición), no validar disponibilidad
@@ -90,7 +92,13 @@ class Reserva(models.Model):
         if self.pk:
             reserva_existente = Reserva.objects.filter(pk=self.pk).first()
 
+        es_nueva = self.pk is None # determina si es una nueva reserva
+
         super().save(*args, **kwargs)
+
+        if es_nueva:
+            self.generar_qr()
+            super().save(update_fields=['qr_codigo'])
 
         #  Si la reserva es nueva o su horario cambió → actualizar disponibilidad
         if not reserva_existente or (
@@ -134,6 +142,24 @@ class Reserva(models.Model):
         if self.estado and self.estado.estado.lower() in ["finalizado", "cancelado"]:
             self.liberar_disponibilidad()
 
+
+    def generar_qr(self):
+        import qrcode
+        from django.core.files.base import ContentFile
+        from io import BytesIO
+
+        # Contenido del QR
+        data = f"Reserva ID: {self.id}\nBarbero: {self.barbero.usuario}\nServicio: {self.servicio.servicio}\nFecha: {self.fecha}\nHora: {self.hora_inicio}"
+
+        # Generar QR
+        qr = qrcode.make(data)
+        buffer = BytesIO()
+        qr.save(buffer, format="PNG")
+
+        filename = f"reserva_{self.id}_qr.png"
+        self.qr_codigo.save(filename, ContentFile(buffer.getvalue()), save=False)
+
+
     def liberar_disponibilidad(self):
         """Libera el horario reservado creando un nuevo bloque de disponibilidad."""
         existe = Disponibilidad.objects.filter(
@@ -151,6 +177,7 @@ class Reserva(models.Model):
                 hora_fin=self.hora_fin,
                 disponible=True
             )
+    
 
     def __str__(self):
         return f"Reserva {self.id} - {self.cliente.usuario} con {self.barbero.usuario}"

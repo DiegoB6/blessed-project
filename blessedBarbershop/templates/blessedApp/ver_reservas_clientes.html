@@ -22,6 +22,7 @@
                                 <th>Cliente</th>
                                 <th>Barbero</th>
                                 <th>Servicio</th>
+                                <th>Codigo QR</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -35,6 +36,29 @@
                                     <td>{{reserva.cliente}}</td>
                                     <td>{{reserva.barbero}}</td>
                                     <td>{{reserva.servicio}}</td>
+
+
+                                    <td class="text-center">
+                                        {% if reserva.qr_codigo %}
+                                            <!-- Imagen QR -->
+                                            <img src="{{ reserva.qr_codigo.url }}" 
+                                                alt="QR Reserva"
+                                                style="width: 80px; height: 80px; display:block; margin:auto;">
+
+                                            <!-- Botón para descargar -->
+                                            <a href="{{ reserva.qr_codigo.url }}" 
+                                            download="QR_Reserva_{{ reserva.id }}.png"
+                                            class="btn btn-sm btn-primary mt-2">
+                                                Descargar
+                                            </a>
+                                        {% else %}
+                                            <span class="text-muted">No generado</span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td>
+                                        <a href="/eliminarReservaCliente/{{reserva.id}}" class="btn btn-danger"><i class="bi bi-trash"></i></a>
+                                    </td>
             
                                 </tr>
                             {% endfor %}

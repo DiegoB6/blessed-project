@@ -119,16 +119,41 @@ class ReservaForm(forms.ModelForm):
         # Mostrar solo clientes en el campo cliente
         self.fields['cliente'].queryset = Usuario.objects.filter(rol__rol__iexact='cliente')
 
-        # 🔹 Si el formulario es solo para editar el estado
+        #  Si el formulario es solo para editar el estado
         if solo_estado:
             for field in list(self.fields.keys()):
                 if field != 'estado':
                     self.fields.pop(field)
 
-        # 🔹 Si no es modo editar ni admin → ocultar cliente y estado
+        #  Si no es modo editar ni admin → ocultar cliente y estado
         elif not editar and not admin:
             self.fields.pop('cliente')
             self.fields.pop('estado')
+
+    # Aquí se valida la disponibilidad del barbero
+    def clean(self):
+        cleaned_data = super().clean()
+        barbero = cleaned_data.get('barbero')
+        fecha = cleaned_data.get('fecha')
+        hora_inicio = cleaned_data.get('hora_inicio')
+
+        if barbero and fecha and hora_inicio:
+            # Calcula hora fin por defecto (1 hora)
+            hora_fin = (datetime.combine(fecha, hora_inicio) + timedelta(hours=1)).time()
+
+            # Verificar si existe disponibilidad libre
+            disponible = Disponibilidad.objects.filter(
+                barbero=barbero,
+                fecha=fecha,
+                hora_inicio__lte=hora_inicio,
+                hora_fin__gte=hora_fin,
+                disponible=True
+            ).exists()
+
+            if not disponible:
+                self.add_error('barbero', '⚠️ El barbero no está disponible en el horario seleccionado.')
+
+        return cleaned_data        
 
     def save(self, commit=True):
         reserva = super().save(commit=False)
@@ -220,3 +245,5 @@ class ReservaAdminForm(forms.ModelForm):
         if commit:
             reserva.save()
         return reserva
+    
+    
