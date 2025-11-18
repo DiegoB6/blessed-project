@@ -13,6 +13,10 @@ from blessedApp.models import *
 from blessedApp.forms import *
 from .forms import RolForm
 
+from django.db.models import Count
+import json
+from django.core.serializers.json import DjangoJSONEncoder
+
 # pip install reportlab
 # from reportlab.pdfgen import canvas
 # from django.http import HttpResponse, FileResponse
@@ -649,21 +653,51 @@ def mostrarDisponibilidadesBarbero(request):
     return render (request, 'blessedApp/ver_disponibilidades.html',data)
 
 
-# def generar_pdf_reserva(request, id):
-#     reserva = get_object_or_404(Reserva, id=id)
+def graficos(request):
 
-#     response = HttpResponse(content_type='application/pdf')
-#     response['Content-Disposition'] = f'attachment; filename="reserva_{id}.pdf"'
+    # KPI 1 – HORARIOS MÁS SOLICITADOS
+    horarios_solicitados = (
+        Reserva.objects.values("hora_inicio")
+        .annotate(total=Count("id"))
+        .order_by("-total")[:10]
+    )
 
-#     p = canvas.Canvas(response)
-#     p.setFont("Arial", 12)
+    # KPI 2 – SERVICIOS MÁS SOLICITADOS
+    servicios_populares = (
+        Reserva.objects.values("servicio__servicio")
+        .annotate(total=Count("id"))
+        .order_by("-total")
+    )
 
-#     p.drawString(100, 800, f"Reserva ID: {reserva.id}")
-#     p.drawString(100, 760, f"Barbero: {reserva.barbero.usuario}")
-#     p.drawString(100, 740, f"Servicio: {reserva.servicio.servicio}")
-#     p.drawString(100, 720, f"Fecha: {reserva.fecha}")
-#     p.drawString(100, 700, f"Hora inicio: {reserva.hora_inicio}")
+    # KPI 3 – BARBERO CON MÁS CLIENTES
+    barberos_con_clientes = (
+        Reserva.objects.values("barbero__usuario")
+        .annotate(total_clientes=Count("cliente", distinct=True))
+        .order_by("-total_clientes")
+)
 
-#     p.showPage()
-#     p.save()
-#     return response
+    top_barbero = barberos_con_clientes[0] if barberos_con_clientes else None
+
+    # ------------------------------
+    # 🔹 Convertimos datos a JSON para JS
+    # ------------------------------
+
+    horarios_labels = [str(h["hora_inicio"]) for h in horarios_solicitados]
+    horarios_data = [h["total"] for h in horarios_solicitados]
+
+    servicios_labels = [s["servicio__servicio"] for s in servicios_populares]
+    servicios_data = [s["total"] for s in servicios_populares]
+
+    data = {
+        # Datos crudos por si los necesitas en HTML
+        "top_barbero": top_barbero,
+
+        # Datos convertidos a JSON (para Chart.js)
+        "horarios_labels": json.dumps(horarios_labels, cls=DjangoJSONEncoder),
+        "horarios_data": json.dumps(horarios_data, cls=DjangoJSONEncoder),
+        "servicios_labels": json.dumps(servicios_labels, cls=DjangoJSONEncoder),
+        "servicios_data": json.dumps(servicios_data, cls=DjangoJSONEncoder),
+    }
+
+    return render(request, "blessedApp/graficos.html", data)
+

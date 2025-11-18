@@ -81,6 +81,9 @@
                 <a href="{% url 'editarPerfil' %}" class="list-group-item list-group-item-action">
                     <i class="bi bi-pencil-square me-2"></i> Editar Perfil
                 </a>
+                <a href="{% url 'graficos' %}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-bar-chart-line me-2"></i> Ver Gráficos
+                </a>
                 
                 <a href="{% url 'cambiarPassword' %}" class="list-group-item list-group-item-action">
                     <i class="bi bi-key me-2"></i> Cambiar Contraseña
@@ -167,6 +170,18 @@
                         </div>
                     </a>
                 </div>
+
+                <div class="col">
+                    <a href="{% url 'graficos' %}" class="card-link">
+                        <div class="card shadow-sm h-100 border-start border-5 border-secondary">
+                            <div class="card-body">
+                                <h5 class="card-title text-secondary"><i class="bi bi-bar-chart-line me-2"></i> Gráficos</h5>
+                                <p class="card-text text-muted">Ver graficos y estadisticas del funcionamiento de los servicios</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
 
                 <div class="col">
                     <a href="{% url 'editarPerfil' %}" class="card-link">

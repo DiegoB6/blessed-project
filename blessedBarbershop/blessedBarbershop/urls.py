@@ -77,6 +77,8 @@ urlpatterns = [
 
     path('cambiarPassword', cambiarPassword, name='cambiarPassword'),
 
+    path('graficos/', graficos, name='graficos'),
+
 
 ]
 
