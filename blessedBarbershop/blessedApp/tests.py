@@ -7,6 +7,8 @@ from django.urls import reverse
 
 class TestModels(TestCase):
 
+    # Prueba correcta para el modelo (tabla) Rol, en este caso se crea un rol de barbero 
+    # y se verifica que se haya creado correctamente.
     def test_model_rol(self):
         rol_model = Rol.objects.create(
             rol = "Barbero"
@@ -15,6 +17,8 @@ class TestModels(TestCase):
         self.assertTrue(isinstance(rol_model, Rol))
 
 
+    # Prueba fallida para el modelo (tabla) Rol, en este caso se intenta crear un rol con un valor numérico 
+    # en lugar de string que es el tipo de dato definido y se verifica que no se haya creado mostrando un error
     def test_model_rol_fallido(self):
         rol_model = Rol.objects.create(
             rol = 1234
@@ -23,6 +27,7 @@ class TestModels(TestCase):
         self.assertTrue(isinstance(rol_model, Rol))
 
 
+# Se definen datos de prueba para testear el login de usuarios, en este caso creando un usuario test con rol de cliente y campos necesarios.
 class TestLogin(TestCase):
     def setUp(self):
         self.rol = Rol.objects.create(rol="Cliente")
@@ -34,6 +39,8 @@ class TestLogin(TestCase):
             rol=self.rol
         )
 
+    # Prueba correcta para el login de usuario, en este caso se intenta iniciar sesión con las credenciales correctas
+    #  y se verifica que la sesión se haya iniciado correctamente.
     def test_login_exitoso(self):
         response = self.client.post(
             reverse("login"),
@@ -49,6 +56,8 @@ class TestLogin(TestCase):
         self.assertIn("rol", session)
 
 
+    # Prueba fallida para el login de usuario, en este caso se intenta iniciar sesión con credenciales incorrectas y se valida que no 
+    # inicio sesion correctamente mostrando el error.
     def test_login_fallido(self):
         response = self.client.post(
             reverse("login"),
@@ -64,6 +73,7 @@ class TestLogin(TestCase):
         self.assertIn("rol", session)
 
 
+    # Prueba de acceso al panel de administración sin permisos, en este caso se intenta acceder al panel sin haber iniciado sesión y muestra un error
     def test_acceso_panel_admin_sin_permisos(self):
         response = self.client.get(reverse("panel_admin"), follow=True)
         self.assertRedirects(response, "/login/")

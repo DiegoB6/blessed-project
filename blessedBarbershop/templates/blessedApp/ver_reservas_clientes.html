@@ -68,6 +68,13 @@
                             {% endfor %}
                         </tbody>
                     </table>
+
+                    <div class="text-center mt-4">
+                        <a href="{% url 'volverPanel' %}" class="btn btn-secondary">
+                            ← Regresar
+                        </a>
+                    </div>
+
                 {% else %}
                     <h3>No hay Reservas</h3>
                 {% endif %}

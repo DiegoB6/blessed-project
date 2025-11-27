@@ -53,7 +53,7 @@ def login(request):
     return render(request, 'registration/login.html')
 
 
-## @rol_requerido(['Administrador'])
+@rol_requerido(['Administrador'])
 def panel_admin(request):
     return render(request, 'panel_admin.html')
 
@@ -66,8 +66,13 @@ def panel_cliente(request):
     return render(request, 'panel_cliente.html')
 
 
-
+@rol_requerido(['Administrador'])
 def mostrarRoles(request):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     roles = Rol.objects.all()
     data = {
         'roles': roles,
@@ -76,7 +81,13 @@ def mostrarRoles(request):
     return render (request, 'blessedApp/ver_roles.html',data)
 
 
+@rol_requerido(['Administrador'])
 def crearRol(request):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+    
     formRol = RolForm()
 
     if request.method == 'POST':
@@ -91,7 +102,13 @@ def crearRol(request):
         }
     return render(request, 'blessedApp/crear_roles.html', data)
     
+@rol_requerido(['Administrador'])
 def editarRol(request, id):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     rol = Rol.objects.get(id=id)
     formRol = RolForm(instance=rol)
     if (request.method == 'POST'):
@@ -108,15 +125,26 @@ def editarRol(request, id):
     }
     return render(request, 'blessedApp/crear_roles.html', data)
 
+@rol_requerido(['Administrador'])
 def eliminarRol(request, id):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     rol = Rol.objects.get(id=id)
     rol.delete()
     return HttpResponseRedirect(reverse('verRoles'))
             
 
 
-
+@rol_requerido(['Administrador'])
 def mostrarServicios(request):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     servicios = Servicio.objects.all()
     data = {
         'servicios': servicios,
@@ -125,7 +153,13 @@ def mostrarServicios(request):
     return render (request, 'blessedApp/ver_servicios.html',data)
 
 
+@rol_requerido(['Administrador'])
 def crearServicio(request):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     servicioForm = ServicioForm()
 
     if request.method == 'POST':
@@ -140,7 +174,13 @@ def crearServicio(request):
         }
     return render(request, 'blessedApp/crear_servicios.html', data)
 
+@rol_requerido(['Administrador'])
 def editarServicio(request, id):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     servicio = Servicio.objects.get(id=id)
     servicioForm = ServicioForm(instance=servicio)
     if (request.method == 'POST'):
@@ -157,14 +197,25 @@ def editarServicio(request, id):
     }
     return render(request, 'blessedApp/crear_servicios.html', data)
 
+@rol_requerido(['Administrador'])
 def eliminarServicio(request, id):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     servicio = Servicio.objects.get(id=id)
     servicio.delete()
     return HttpResponseRedirect(reverse('verServicios'))
 
 
-
+@rol_requerido(['Administrador'])
 def mostrarUsuarios(request):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     usuarios = Usuario.objects.all()
     data = {
         'usuarios': usuarios,
@@ -173,7 +224,13 @@ def mostrarUsuarios(request):
     return render (request, 'blessedApp/ver_usuarios.html',data)
 
 
+@rol_requerido(['Administrador'])
 def crearUsuario(request):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     usuarioForm = UsuarioForm()
 
     if request.method == 'POST':
@@ -188,7 +245,13 @@ def crearUsuario(request):
         }
     return render(request, 'blessedApp/crear_usuarios.html', data)
 
+
 def editarUsuario(request, id):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     usuario = Usuario.objects.get(id=id)
     usuarioForm = UsuarioForm(instance=usuario) 
     if (request.method == 'POST'):
@@ -206,14 +269,20 @@ def editarUsuario(request, id):
     return render(request, 'blessedApp/crear_usuarios.html', data)
 
 
+@rol_requerido(['Administrador'])
 def eliminarUsuario(request, id):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     usuario = Usuario.objects.get(id=id)
     usuario.delete()
     return HttpResponseRedirect(reverse('verUsuarios'))
 
 
 
-
+@rol_requerido(['Administrador', 'Barbero'])
 def mostrarDisponibilidades(request):
     usuario_id = request.session.get('usuario_id')
 
@@ -269,6 +338,7 @@ def crearDisponibilidad(request):
     }
     return render(request, 'blessedApp/crear_disponibilidades.html', data)
 
+
 def editarDisponibilidad(request, id):
     usuario_id = request.session.get('usuario_id')
     if not usuario_id:
@@ -305,13 +375,23 @@ def editarDisponibilidad(request, id):
 
 
 def eliminarDisponibilidad(request, id):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     disponibilidad = Disponibilidad.objects.get(id=id)
     disponibilidad.delete()
     return HttpResponseRedirect(reverse('verDisponibilidades'))
 
 
-
+@rol_requerido(['Administrador'])
 def mostrarReservas(request):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     reservas = Reserva.objects.all()
     data = {
         'reservas': reservas,
@@ -356,7 +436,7 @@ def crearReserva(request):
             ).exists()
 
             if disponibilidad_ocupada:
-                messages.error(request, "⚠️ El barbero no está disponible en el horario seleccionado.")
+                messages.error(request, "El barbero no está disponible en el horario seleccionado.")
                 data = {
                     'reservaForm': reservaForm,
                     'titulo': 'Crear Reserva'
@@ -364,8 +444,11 @@ def crearReserva(request):
                 return render(request, 'blessedApp/crear_reservas.html', data)
 
             reserva.save()
-            messages.success(request, "✅ Reserva creada exitosamente.")
-            return HttpResponseRedirect(reverse('verReservasCliente'))
+            messages.success(request, "Reserva creada exitosamente.")
+            if es_admin:
+                return redirect('verReservas')
+            else:
+                return redirect('verReservasCliente')
         else:
             print(reservaForm.errors)
     else:
@@ -378,7 +461,13 @@ def crearReserva(request):
     return render(request, 'blessedApp/crear_reservas.html', data)
 
 
+@rol_requerido(['Administrador'])
 def editarReserva(request, id):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     reserva = Reserva.objects.get(id=id)
     reservaForm = ReservaForm(instance=reserva, editar=True)
 
@@ -398,7 +487,7 @@ def editarReserva(request, id):
                     hora_inicio__lte=reserva_actualizada.hora_fin,
                     hora_fin__gte=reserva_actualizada.hora_inicio
                 ).update(disponible=True)
-                print("✅ Disponibilidad liberada para el barbero.")
+                print("Disponibilidad liberada para el barbero.")
 
             reserva_actualizada.save()
             return HttpResponseRedirect(reverse('verReservas'))
@@ -412,20 +501,39 @@ def editarReserva(request, id):
     return render(request, 'blessedApp/crear_reservas.html', data)
 
 
+@rol_requerido(['Administrador'])
 def eliminarReserva(request, id):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     reserva = Reserva.objects.get(id=id)
     reserva.liberar_disponibilidad()
     reserva.delete()
     return HttpResponseRedirect(reverse('verReservas'))
 
+
+@rol_requerido(['Cliente'])
 def eliminarReservaCliente(request, id):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     reserva = Reserva.objects.get(id=id)
     reserva.liberar_disponibilidad()
     reserva.delete()
     return HttpResponseRedirect(reverse('verReservasCliente'))
 
 
+@rol_requerido(['Barbero'])
 def eliminarReservaBarbero(request, id):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     reserva = Reserva.objects.get(id=id)
     reserva.liberar_disponibilidad()
     reserva.delete()
@@ -433,8 +541,13 @@ def eliminarReservaBarbero(request, id):
 
 
 
-
+@rol_requerido(['Administrador'])
 def mostrarEstados(request):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     estados = Estado.objects.all()
     data = {
         'estados': estados,
@@ -443,7 +556,13 @@ def mostrarEstados(request):
     return render (request, 'blessedApp/ver_estados.html',data)
 
 
+@rol_requerido(['Administrador'])
 def crearEstado(request):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     estadoForm = EstadoForm()
 
     if request.method == 'POST':
@@ -457,8 +576,14 @@ def crearEstado(request):
             'titulo': 'Crear Estado'
         }
     return render(request, 'blessedApp/crear_estados.html', data)
-    
+
+@rol_requerido(['Administrador'])    
 def editarEstado(request, id):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     estado = Estado.objects.get(id=id)
     estadoForm = EstadoForm(instance=estado)
     if (request.method == 'POST'):
@@ -475,7 +600,13 @@ def editarEstado(request, id):
     }
     return render(request, 'blessedApp/crear_estados.html', data)
 
+@rol_requerido(['Administrador'])
 def eliminarEstado(request, id):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     estado = Estado.objects.get(id=id)
     estado.delete()
     return HttpResponseRedirect(reverse('verEstados'))
@@ -487,7 +618,13 @@ def cerrar_sesion(request):
     return redirect('login')
 
 
+@rol_requerido(['Barbero'])
 def editarReservaBarbero(request, id):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     reserva = Reserva.objects.get(id=id)
     reservaForm = ReservaForm(instance=reserva, editar=True, solo_estado=True)
 
@@ -507,7 +644,13 @@ def editarReservaBarbero(request, id):
     return render(request, 'blessedApp/crear_reservas.html', data)
 
 
+@rol_requerido(['Cliente'])
 def mostrarReservasCliente(request):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     usuario_id = request.session.get('usuario_id')
     reservas = Reserva.objects.filter(cliente_id=usuario_id)
 
@@ -518,7 +661,13 @@ def mostrarReservasCliente(request):
     return render(request, 'blessedApp/ver_reservas_clientes.html', data)
 
 
+@rol_requerido(['Barbero'])
 def mostrarReservasBarbero(request):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     usuario_id = request.session.get('usuario_id')
     reservas = Reserva.objects.filter(barbero_id=usuario_id)
 
@@ -605,6 +754,11 @@ def editarDatos(request):
 def cambiarPassword(request):
     usuario_id = request.session.get('usuario_id')
     if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
         messages.error(request, "Debe iniciar sesión para cambiar su contraseña.")
         return redirect('login')
 
@@ -628,7 +782,13 @@ def cambiarPassword(request):
     return render(request, 'registration/cambiar_password.html', data)
 
 
+@rol_requerido(['Administrador'])
 def crearReservaAdmin(request):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     reservaForm = ReservaForm()
 
     if request.method == 'POST':
@@ -644,7 +804,13 @@ def crearReservaAdmin(request):
     return render(request, 'blessedApp/crear_reservas.html', data)
 
 
+@rol_requerido(['Barbero'])
 def mostrarDisponibilidadesBarbero(request):
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder.")
+        return redirect('login')
+
     disponibilidades = Disponibilidad.objects.all()
     data = {
         'disponibilidades': disponibilidades,
@@ -653,7 +819,14 @@ def mostrarDisponibilidadesBarbero(request):
     return render (request, 'blessedApp/ver_disponibilidades.html',data)
 
 
+
+@rol_requerido(['Administrador'])
 def graficos(request):
+
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        messages.error(request, "Debe iniciar sesión para acceder a los gráficos.")
+        return redirect('login')
 
     # KPI 1 – HORARIOS MÁS SOLICITADOS
     horarios_solicitados = (
@@ -672,15 +845,13 @@ def graficos(request):
     # KPI 3 – BARBERO CON MÁS CLIENTES
     barberos_con_clientes = (
         Reserva.objects.values("barbero__usuario")
-        .annotate(total_clientes=Count("cliente", distinct=True))
+        .annotate(total_clientes=Count("cliente"))
         .order_by("-total_clientes")
 )
 
     top_barbero = barberos_con_clientes[0] if barberos_con_clientes else None
 
-    # ------------------------------
-    # 🔹 Convertimos datos a JSON para JS
-    # ------------------------------
+    # Convertimos datos a JSON
 
     horarios_labels = [str(h["hora_inicio"]) for h in horarios_solicitados]
     horarios_data = [h["total"] for h in horarios_solicitados]
@@ -701,3 +872,19 @@ def graficos(request):
 
     return render(request, "blessedApp/graficos.html", data)
 
+
+def volverPanel(request):
+    usuario_id = request.session.get('usuario_id')
+
+    if not usuario_id:
+        return redirect('login')
+
+    usuario = Usuario.objects.get(id=usuario_id)
+    rol = usuario.rol.rol.lower()
+
+    if rol == "administrador":
+        return redirect('panel_admin')
+    elif rol == "barbero":
+        return redirect('panel_barbero')
+    else:
+        return redirect('panel_cliente')
