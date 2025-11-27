@@ -306,7 +306,7 @@ def mostrarDisponibilidades(request):
 
     return render(request, 'blessedApp/ver_disponibilidades.html', context)
 
-
+@rol_requerido(['Administrador', 'Barbero'])
 def crearDisponibilidad(request):
     usuario_id = request.session.get('usuario_id')
     if not usuario_id:
@@ -400,7 +400,7 @@ def mostrarReservas(request):
     return render (request, 'blessedApp/ver_reservas.html',data)
 
 
-
+@rol_requerido(['Administrador', 'Cliente']) 
 def crearReserva(request):
     usuario_id = request.session.get('usuario_id')
     if not usuario_id:
